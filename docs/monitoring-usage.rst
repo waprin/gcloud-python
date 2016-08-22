@@ -293,11 +293,15 @@ be created using the :class:`~gcloud.monitoring.metric.MetricDescriptor` class o
 auto-created.  For more information on creating metric descriptors, see the `Metric Descriptors`_
 section. For information on metric type auto-creation, see `Auto-creation of custom metrics`_.
 
-You must also create a fully parameterized :class:`~gcloud.monitoring.resource.Resource` from one
-of the available resource descriptors which can be listed using the
-:class:`~gcloud.monitoring.resource.ResourceDescriptor` class, which similarly requires that its
-available labels have values specified. The label project_id is ignored when writing and should not
-be specified.
+You will also need to provide a :class:`~gcloud.monitoring.resource.Resource` instance specifying a
+monitored resource type as well as values for all of the monitored resource labels, except for
+project_id, which is ignored when writing. A good choice is to use the underlying physical
+resource where your application code runs – e.g., a monitored resource type of gce_instance or
+aws_ec2_instance. In some limited circumstances, such as when only a single process writes to the
+custom metric, you may choose to use the global monitored resource type.
+
+See `Monitored resource types`_ for a list of all monitored resource types available in
+Stackdriver Monitoring.
 
 >>> from gcloud import monitoring
 >>> # Create a Resource object for the desired monitored resource type.
@@ -366,3 +370,5 @@ All timezone-naive Python ``datetime`` objects are assumed to be UTC.
 .. _Metrics: https://cloud.google.com/monitoring/api/v3/metrics
 .. _Metric Descriptors:
     https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors
+.. `Monitored resource types`_
+    https://cloud.google.com/monitoring/api/resources
