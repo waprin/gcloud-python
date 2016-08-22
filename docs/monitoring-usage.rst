@@ -287,17 +287,16 @@ The Stackdriver Monitoring API can be used to write data points to custom metric
 the documentation on `Custom Metrics`_ for more information.
 
 To write a data point to a custom metric, you must provide an instance of
-:class:`~gcloud.monitoring.metric.Metric` created with a metric type as well as values for
-the labels associated with that metric type. The metric type can either
-be created using the :class:`~gcloud.monitoring.metric.MetricDescriptor` class or be
-auto-created.  For more information on creating metric descriptors, see the `Metric Descriptors`_
-section. For information on metric type auto-creation, see `Auto-creation of custom metrics`_.
+:class:`~gcloud.monitoring.metric.Metric` specifying the metric type as well as the values for
+the metric labels. You will need to have either created the metric descriptor earlier ( see the
+`Metric Descriptors`_ section ) or rely on metric type auto-creation, see `Auto-creation of
+custom metrics`_.
 
 You will also need to provide a :class:`~gcloud.monitoring.resource.Resource` instance specifying a
 monitored resource type as well as values for all of the monitored resource labels, except for
-project_id, which is ignored when writing. A good choice is to use the underlying physical
-resource where your application code runs – e.g., a monitored resource type of gce_instance or
-aws_ec2_instance. In some limited circumstances, such as when only a single process writes to the
+`project_id`, which is ignored when writing. A good choice is to use the underlying physical
+resource where your application code runs – e.g., a monitored resource type of `gce_instance` or
+`aws_ec2_instance`. In some limited circumstances, such as when only a single process writes to the
 custom metric, you may choose to use the global monitored resource type.
 
 See `Monitored resource types`_ for a list of all monitored resource types available in
