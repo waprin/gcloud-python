@@ -286,10 +286,10 @@ Writing Custom Metrics
 The Stackdriver Monitoring API can be used to write data points to custom metrics. Please refer to
 the documentation on `Custom Metrics`_ for more information.
 
-To write a data point to a custom metric, you must provide an instances of
+To write a data point to a custom metric, you must provide an instance of
 :class:`~gcloud.monitoring.metric.Metric` created with a metric type as well as values for
 the labels associated with that metric type. The metric type can either
-be created using the :class:`~gcloud.monitoring.metric.MetricDescriptor` class or
+be created using the :class:`~gcloud.monitoring.metric.MetricDescriptor` class or be
 auto-created.  For more information on creating metric descriptors, see the `Metric Descriptors`_
 section. For information on metric type auto-creation, see `Auto-creation of custom metrics`_.
 
