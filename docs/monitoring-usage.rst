@@ -284,13 +284,14 @@ Writing Custom Metrics
 ---------------------------
 
 The Stackdriver Monitoring API can be used to write data points to custom metrics. Please refer to
-the documentation for the `Creating Custom Metrics`_ for more information.
+the documentation on `Custom Metrics`_ for more information.
 
-To create a custom :class:`~gcloud.monitoring.timeseries.TimeSeries` value, you must first create a
-custom :class:`~gcloud.monitoring.metric.MetricDescriptor` object, and then use its
-type to create a fully parameterized :class:`~gcloud.monitoring.metric.Metric` by providing
-specific values for the available labels. For more information on creating metric descriptors,
-see the `Metric Descriptors`_ section.
+To write a data point to a custom metric, you must provide an instances of
+:class:`~gcloud.monitoring.metric.Metric` created with a metric type as well as values for
+the labels associated with that metric type. The metric type can either
+be created using the :class:`~gcloud.monitoring.metric.MetricDescriptor` class or
+auto-created.  For more information on creating metric descriptors, see the `Metric Descriptors`_
+section. For information on metric type auto-creation, see `Auto-creation of custom metrics`_.
 
 You must also create a fully parameterized :class:`~gcloud.monitoring.resource.Resource` from one
 of the available ``ResourceDescriptors`` which can be listed using the
@@ -299,12 +300,12 @@ available labels have values specified. The ``project-id`` label is a special ca
 not be specified.
 
 >>> from gcloud import monitoring
->>> # Create a Resource by its resource name, assign labels as dict
+>>> # Create a Resource object for the desired monitored resource type.
 >>> resource = client.resource('gce_instance', labels={
 ...     'instance_id': '1234567890123456789',
 ...     'zone': 'us-central1-f'
 ... })
->>> # Create a Metric using its metric descriptor. assigning label as dict
+>>> # Create a Metric object, specifying the metric type as well as values for any metric labels.
 >>> metric = client.metric(type='custom.googleapis.com/my_metric', labels={
 ...      'status': 'successful'
 ... })
@@ -315,49 +316,53 @@ With a ``Metric`` and ``Resource`` specified, the :class:`~gcloud.monitoring.cli
 can be used to write :class:`~gcloud.monitoring.timeseries.Point` values.
 
 When writing points, the Python type of the value must match the *value_type* specified
-in the associated :class:`~gcloud.monitoring.metric.MetricDescriptor`. For example, a Python
-float will map to ``ValueType.DOUBLE``.
+in the type of the associated `Metric Descriptors`_. For example, a Python float will map to
+``ValueType.DOUBLE``.
 
-Stackdriver Monitoring supports several **metric kinds**: *GAUGE*, *CUMULATIVE*, and *DELTA*.
-However, *DELTA* metrics can not be created as custom metrics.
+Stackdriver Monitoring supports several *metric kinds*: `GAUGE`, `CUMULATIVE`, and `DELTA`.
+However, `DELTA` custom metrics are not supported.
 
 *GAUGE* metrics represent only a single point in time, so only the ``end_time`` should be
 specified::
 
     >>> client.write_point(metric=metric, resource=resource, 3.14, end_time=end) # API call
 
-By default, end_time defaults to :meth:`~datetime.datetime.utcnow()`, so metrics written for the
-current time can be simplified to::
+By default, ``end_time`` defaults to :meth:`~datetime.datetime.utcnow()`, so metrics can be written
+to the current time as follows::
 
    >>> client.write_point(metric, resource, 3.14) # API call
 
-For *CUMULATIVE* metrics, the same start time should be re-used repeatedly as more points are
-written to the time series. In this context, the start time is sometimes referred to as the *RESET*
-time. Once the cumulative metric is ready to be reset, the *RESET* time should be reset by
-specifying a new ``start_time``. Please refer to the `TimeSeries`_ documentation for more
-information on specifying time intervals.
+*CUMULATIVE* metrics enable the monitoring system to compute rates of increase on metrics that
+sometimes reset, such as after a process restart. Without cumulative metrics, this
+reset would otherwise show up as a huge negative spike.
 
-    >>> client.write_point(metric, resource, 3, start_time=RESET, end_time=TIME1) # API call
-    >>> client.write_point(metric, resource, 6, start_time=RESET, end_time=TIME2) # API call
-    >>> # Now reset the time series, for example on an application restart.
+For *CUMULATIVE* metrics, the same start time should be re-used repeatedly as more points are
+written to the time series. In this context, the start time is also called the *reset*
+time. Once the cumulative metric is ready to be reset, the *reset* time should be reset by
+specifying a new ``start_time``. In the examples below, the `end_time` again defaults to
+the current time.
+
     >>> RESET = datetime.utcnow()
-    >>> client.write_point(metric, resource, 3, start_time=RESET, end_time=TIME3) # API call
+    >>> # Use default `end_time` below
+    >>> client.write_point(metric, resource, 3, start_time=RESET) # API call
+    >>> client.write_point(metric, resource, 6, start_time=RESET) # API call
 
 To write multiple ``TimeSeries`` in a single batch, you can use
 :meth:`~gcloud.monitoring.client.write_time_series`::
 
-    >>> ts1 = client.time_series(metric1, resource1, 3.14, end_time=end_time)
-    >>> ts2 = client.time_series(metric2, resource2, 42, end_time=end_time2)
+    >>> ts1 = client.time_series(metric1, resource, 3.14, end_time=end_time)
+    >>> ts2 = client.time_series(metric2, resource, 42, end_time=end_time)
     >>> client.write_time_series([ts1, ts2]) # API call
 
 While multiple time series can be written in a single batch, each ``TimeSeries`` object sent to
 the API must only include a single point.
 
-For more information on creating ``TimeSeries``, please refer to the API reference docs on
-`TimeSeries`_.
+All timezone-naive Python ``datetime`` objects are assumed to be UTC.
 
-All timezone-naive Python ``datetime`` dates are assumed to be UTC.
-
-.. _Creating Custom Metrics: https://cloud.google.com/monitoring/custom-metrics/creating-metrics
-.. _Metrics: https://cloud.google.com/monitoring/api/v3/metrics
 .. _TimeSeries: https://cloud.google.com/monitoring/api/ref_v3/rest/v3/TimeSeries
+.. _Custom Metrics: https://cloud.google.com/monitoring/custom-metrics/
+.. _Auto-creation of custom metrics:
+    https://cloud.google.com/monitoring/custom-metrics/creating-metrics#auto-creation
+.. _Metrics: https://cloud.google.com/monitoring/api/v3/metrics
+.. _Metric Descriptors:
+    https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors
