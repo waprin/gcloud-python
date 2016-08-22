@@ -296,7 +296,7 @@ section. For information on metric type auto-creation, see `Auto-creation of cus
 You must also create a fully parameterized :class:`~gcloud.monitoring.resource.Resource` from one
 of the available ``ResourceDescriptors`` which can be listed using the
 :class:`~gcloud.monitoring.resource.ResourceDescriptor` class, which similarly requires that its
-available labels have values specified. The ``project-id`` label is a special case that should
+available labels have values specified. The ``project_id`` label is a special case that should
 not be specified.
 
 >>> from gcloud import monitoring
