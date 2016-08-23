@@ -316,10 +316,10 @@ Stackdriver Monitoring.
 
 Please refer to the `Metrics`_ documentation for more information.
 
-With a ``Metric`` and ``Resource`` specified, the :class:`~gcloud.monitoring.client.Client`
+With a ``Metric`` and ``Resource`` in hand, the :class:`~gcloud.monitoring.client.Client`
 can be used to write :class:`~gcloud.monitoring.timeseries.Point` values.
 
-When writing points, the Python type of the value must match the *value_type* of the metric
+When writing points, the Python type of the value must match the *value type* of the metric
 descriptor associated with the metric. For example, a Python float will map to ``ValueType.DOUBLE``.
 
 Stackdriver Monitoring supports several *metric kinds*: ``GAUGE``, ``CUMULATIVE``, and ``DELTA``.
@@ -337,13 +337,12 @@ to the current time as follows::
 
 ``CUMULATIVE`` metrics enable the monitoring system to compute rates of increase on metrics that
 sometimes reset, such as after a process restart. Without cumulative metrics, this
-reset would otherwise show up as a huge negative spike. For ``CUMULATIVE`` metrics, the same start
+reset would otherwise show up as a huge negative spike. For cumulative metrics, the same start
 time should be re-used repeatedly as more points are written to the time series.
 
 In the examples below, the ``end_time`` again defaults to the current time::
 
     >>> RESET = datetime.utcnow()
-    >>> # Use default ``end_time`` below
     >>> client.write_point(metric, resource, 3, start_time=RESET) # API call
     >>> client.write_point(metric, resource, 6, start_time=RESET) # API call
 
