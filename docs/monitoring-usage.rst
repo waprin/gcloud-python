@@ -289,15 +289,15 @@ the documentation on `Custom Metrics`_ for more information.
 To write a data point to a custom metric, you must provide an instance of
 :class:`~gcloud.monitoring.metric.Metric` specifying the metric type as well as the values for
 the metric labels. You will need to have either created the metric descriptor earlier (see the
-`Metric Descriptors`_ section ) or rely on metric type auto-creation (see `Auto-creation of
+`Metric Descriptors`_ section) or rely on metric type auto-creation (see `Auto-creation of
 custom metrics`_).
 
 You will also need to provide a :class:`~gcloud.monitoring.resource.Resource` instance specifying a
 monitored resource type as well as values for all of the monitored resource labels, except for
-`project_id`, which is ignored when writing. A good choice is to use the underlying physical
-resource where your application code runs – e.g., a monitored resource type of `gce_instance` or
-`aws_ec2_instance`. In some limited circumstances, such as when only a single process writes to the
-custom metric, you may choose to use the `global` monitored resource type.
+``project_id``, which is ignored when writing. A good choice is to use the underlying physical
+resource where your application code runs – e.g., a monitored resource type of ``gce_instance`` or
+``aws_ec2_instance``. In some limited circumstances, such as when only a single process writes to
+the custom metric, you may choose to use the ``global`` monitored resource type.
 
 See `Monitored resource types`_ for a list of all monitored resource types available in
 Stackdriver Monitoring.
@@ -318,14 +318,13 @@ Please refer to the `Metrics`_ documentation for more information.
 With a ``Metric`` and ``Resource`` specified, the :class:`~gcloud.monitoring.client.Client`
 can be used to write :class:`~gcloud.monitoring.timeseries.Point` values.
 
-When writing points, the Python type of the value must match the *value_type* specified
-in the type of the associated `Metric Descriptors`_. For example, a Python float will map to
-``ValueType.DOUBLE``.
+When writing points, the Python type of the value must match the *value_type* of the metric
+descriptor associated with the metric. For example, a Python float will map to ``ValueType.DOUBLE``.
 
-Stackdriver Monitoring supports several *metric kinds*: `GAUGE`, `CUMULATIVE`, and `DELTA`.
-However, `DELTA` custom metrics are not supported.
+Stackdriver Monitoring supports several *metric kinds*: ``GAUGE``, ``CUMULATIVE``, and ``DELTA``.
+However, ``DELTA`` custom metrics are not supported.
 
-*GAUGE* metrics represent only a single point in time, so only the ``end_time`` should be
+``GAUGE`` metrics represent only a single point in time, so only the ``end_time`` should be
 specified::
 
     >>> client.write_point(metric=metric, resource=resource, 3.14, end_time=end) # API call
@@ -335,16 +334,15 @@ to the current time as follows::
 
    >>> client.write_point(metric, resource, 3.14) # API call
 
-*CUMULATIVE* metrics enable the monitoring system to compute rates of increase on metrics that
+``CUMULATIVE`` metrics enable the monitoring system to compute rates of increase on metrics that
 sometimes reset, such as after a process restart. Without cumulative metrics, this
-reset would otherwise show up as a huge negative spike. For *CUMULATIVE* metrics, the same start
-time should be re-used repeatedly as more points are written to the time series. In this context,
-the start time is also called the *reset* time. Once the metric being measure has its value
-reset, you can specify a new `start_time` to reset the *reset* value. In the examples below, the
-`end_time` again defaults to the current time.
+reset would otherwise show up as a huge negative spike. For ``CUMULATIVE`` metrics, the same start
+time should be re-used repeatedly as more points are written to the time series.
+
+In the examples below, the ``end_time`` again defaults to the current time::
 
     >>> RESET = datetime.utcnow()
-    >>> # Use default `end_time` below
+    >>> # Use default ``end_time`` below
     >>> client.write_point(metric, resource, 3, start_time=RESET) # API call
     >>> client.write_point(metric, resource, 6, start_time=RESET) # API call
 
