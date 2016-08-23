@@ -289,8 +289,8 @@ the documentation on `Custom Metrics`_ for more information.
 To write a data point to a custom metric, you must provide an instance of
 :class:`~gcloud.monitoring.metric.Metric` specifying the metric type as well as the values for
 the metric labels. You will need to have either created the metric descriptor earlier ( see the
-`Metric Descriptors`_ section ) or rely on metric type auto-creation, see `Auto-creation of
-custom metrics`_.
+`Metric Descriptors`_ section ) or rely on metric type auto-creation (see `Auto-creation of
+custom metrics`_).
 
 You will also need to provide a :class:`~gcloud.monitoring.resource.Resource` instance specifying a
 monitored resource type as well as values for all of the monitored resource labels, except for
@@ -365,7 +365,5 @@ All timezone-naive Python ``datetime`` objects are assumed to be UTC.
 .. _Auto-creation of custom metrics:
     https://cloud.google.com/monitoring/custom-metrics/creating-metrics#auto-creation
 .. _Metrics: https://cloud.google.com/monitoring/api/v3/metrics
-.. _Metric Descriptors:
-    https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors
 .. _Monitored resource types:
     https://cloud.google.com/monitoring/api/resources
