@@ -288,7 +288,7 @@ the documentation on `Custom Metrics`_ for more information.
 
 To write a data point to a custom metric, you must provide an instance of
 :class:`~gcloud.monitoring.metric.Metric` specifying the metric type as well as the values for
-the metric labels. You will need to have either created the metric descriptor earlier ( see the
+the metric labels. You will need to have either created the metric descriptor earlier (see the
 `Metric Descriptors`_ section ) or rely on metric type auto-creation (see `Auto-creation of
 custom metrics`_).
 
