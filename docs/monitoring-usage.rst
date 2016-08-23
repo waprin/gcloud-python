@@ -297,7 +297,7 @@ monitored resource type as well as values for all of the monitored resource labe
 `project_id`, which is ignored when writing. A good choice is to use the underlying physical
 resource where your application code runs – e.g., a monitored resource type of `gce_instance` or
 `aws_ec2_instance`. In some limited circumstances, such as when only a single process writes to the
-custom metric, you may choose to use the global monitored resource type.
+custom metric, you may choose to use the `global` monitored resource type.
 
 See `Monitored resource types`_ for a list of all monitored resource types available in
 Stackdriver Monitoring.
