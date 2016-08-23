@@ -337,13 +337,11 @@ to the current time as follows::
 
 *CUMULATIVE* metrics enable the monitoring system to compute rates of increase on metrics that
 sometimes reset, such as after a process restart. Without cumulative metrics, this
-reset would otherwise show up as a huge negative spike.
-
-For *CUMULATIVE* metrics, the same start time should be re-used repeatedly as more points are
-written to the time series. In this context, the start time is also called the *reset*
-time. Once the cumulative metric is ready to be reset, the *reset* time should be reset by
-specifying a new ``start_time``. In the examples below, the `end_time` again defaults to
-the current time.
+reset would otherwise show up as a huge negative spike. For *CUMULATIVE* metrics, the same start
+time should be re-used repeatedly as more points are written to the time series. In this context,
+the start time is also called the *reset* time. Once the metric being measure has its value
+reset, you can specify a new `start_time` to reset the *reset* value. In the examples below, the
+`end_time` again defaults to the current time.
 
     >>> RESET = datetime.utcnow()
     >>> # Use default `end_time` below
@@ -369,5 +367,5 @@ All timezone-naive Python ``datetime`` objects are assumed to be UTC.
 .. _Metrics: https://cloud.google.com/monitoring/api/v3/metrics
 .. _Metric Descriptors:
     https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors
-.. `Monitored resource types`_
+.. _Monitored resource types
     https://cloud.google.com/monitoring/api/resources
