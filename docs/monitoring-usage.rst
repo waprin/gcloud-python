@@ -367,5 +367,5 @@ All timezone-naive Python ``datetime`` objects are assumed to be UTC.
 .. _Metrics: https://cloud.google.com/monitoring/api/v3/metrics
 .. _Metric Descriptors:
     https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors
-.. _Monitored resource types
+.. _Monitored resource types:
     https://cloud.google.com/monitoring/api/resources
