@@ -541,9 +541,80 @@ class TestClient(unittest.TestCase):
                             'query_params': {}}
         self.assertEqual(request, expected_request)
 
+    def test_write_time_series(self):
+        PATH = '/projects/{project}/timeSeries/'.format(project=PROJECT)
+        client = self._makeOne(project=PROJECT, credentials=_Credentials())
+
+        RESOURCE_TYPE = 'gce_instance'
+        RESOURCE_LABELS = {
+            'instance_id': '1234567890123456789',
+            'zone': 'us-central1-f'
+        }
+
+        METRIC_TYPE = 'custom.googleapis.com/my_metric'
+        METRIC_LABELS = {
+            'status': 'successful'
+        }
+        METRIC_TYPE2 = 'custom.googleapis.com/count_404s'
+        METRIC_LABELS2 = {
+            'request_ip': '127.0.0.1'
+        }
+
+        connection = client.connection = _Connection({})
+
+        METRIC = client.metric(METRIC_TYPE, METRIC_LABELS)
+        METRIC2 = client.metric(METRIC_TYPE2, METRIC_LABELS2)
+        RESOURCE = client.resource(RESOURCE_TYPE, RESOURCE_LABELS)
+
+        TS1 = client.time_series(METRIC, RESOURCE, 3)
+        TS2 = client.time_series(METRIC2, RESOURCE, 3.14)
+
+        expected_data = {
+            'timeSeries': [
+                TS1._to_dict(),
+                TS2._to_dict()
+            ]
+        }
+        expected_request = {'method': 'POST', 'path': PATH,
+                            'data': expected_data}
+
+        client.write_time_series([TS1, TS2])
+        request, = connection._requested
+        self.assertEqual(request, expected_request)
+
+    def test_write_point(self):
+        import datetime
+        PATH = '/projects/{project}/timeSeries/'.format(project=PROJECT)
+        client = self._makeOne(project=PROJECT, credentials=_Credentials())
+
+        RESOURCE_TYPE = 'gce_instance'
+        RESOURCE_LABELS = {
+            'instance_id': '1234567890123456789',
+            'zone': 'us-central1-f'
+        }
+
+        METRIC_TYPE = 'custom.googleapis.com/my_metric'
+        METRIC_LABELS = {
+            'status': 'successful'
+        }
+
+        connection = client.connection = _Connection({})
+
+        METRIC = client.metric(METRIC_TYPE, METRIC_LABELS)
+        RESOURCE = client.resource(RESOURCE_TYPE, RESOURCE_LABELS)
+        VALUE = 3.14
+        TIMESTAMP1 = datetime.datetime.now()
+        TIMESERIES = client.time_series(METRIC, RESOURCE, VALUE, TIMESTAMP1)
+
+        expected_request = {'method': 'POST', 'path': PATH,
+                            'data': {'timeSeries': [TIMESERIES._to_dict()]}}
+
+        client.write_point(METRIC, RESOURCE, VALUE, TIMESTAMP1)
+        request, = connection._requested
+        self.assertEqual(request, expected_request)
+
 
 class _Credentials(object):
-
     _scopes = None
 
     @staticmethod

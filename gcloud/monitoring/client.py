@@ -310,7 +310,7 @@ class Client(JSONClient):
         :type start_time: :class:`~datetime.datetime`
         :param start_time:
             The start time for the point to be included in the time series.
-            Assumed to be UTC if no time zone information is present
+            Assumed to be UTC if no time zone information is present.
             Defaults to None. If the start time is unspecified,
             the API interprets the start time to be the same as the end time.
 
@@ -490,3 +490,81 @@ class Client(JSONClient):
         :returns: A list of group instances.
         """
         return Group._list(self)
+
+    def write_time_series(self, timeseries_sequence):
+        """Writes a sequence of time series to the API.
+
+        The recommended approach to creating time series objects is using
+        the :meth:`gcloud.monitoring.client.Client.time_series` factory.
+
+        For writing a single time series, consider using the
+        :meth:`~gcloud.monitoring.client.Client.write_point` method.
+
+        Example::
+
+            >>> client.write_time_series([ts1, ts2])
+
+        :type timeseries_sequence:
+            sequence of :class:`gcloud.monitoring.timeseries.TimeSeries`.
+        :param timeseries_sequence:
+            A sequence (typically a tuple or list) of time series to be written
+            to the API. Each time series must contain exactly one point.
+        """
+        path = '/projects/{project}/timeSeries/'.format(
+            project=self.project)
+        timeseries_dict = [t._to_dict() for t in timeseries_sequence]
+        self.connection.api_request(method='POST', path=path,
+                                    data={'timeSeries': timeseries_dict})
+
+    def write_point(self, metric, resource, value,
+                    end_time=None,
+                    start_time=None):
+        """Writes a single point for a metric to the API.
+
+        This is a convenience method to write a single time series objects to
+        the API. To write multiple time series to the API as a batch, consider
+        using the :meth:`gcloud.monitoring.client.Client.time_series` factory
+        to create time series and the
+        :meth:`gcloud.monitoring.client.Client.time_series` method to write
+        the objects.
+
+        Example::
+
+            >>> client.write_point(metric, resource, 3.14)
+
+        :type metric: :class:`~gcloud.monitoring.metric.Metric`
+        :param metric: A :class:`~gcloud.monitoring.metric.Metric` object.
+
+        :type resource: :class:`~gcloud.monitoring.resource.Resource`
+        :param resource: A :class:`~gcloud.monitoring.resource.Resource`
+                         object.
+
+        :type value: bool, int, string, or float
+        :param value:
+            The value of the data point to create for the
+            :class:`~gcloud.monitoring.timeseries.TimeSeries`.
+
+            .. note::
+
+               The Python type of the value will determine the
+               :class:`~ValueType` sent to the API, which must match the value
+               type specified in the metric descriptor. For example, a Python
+               float will be sent to the API as a :data:`ValueType.DOUBLE`.
+
+        :type end_time: :class:`~datetime.datetime`
+        :param end_time:
+            The end time for the point to be included in the time series.
+            Assumed to be UTC if no time zone information is present.
+            Defaults to the current time, as obtained by calling
+            :meth:`datetime.datetime.utcnow`.
+
+        :type start_time: :class:`~datetime.datetime`
+        :param start_time:
+            The start time for the point to be included in the time series.
+            Assumed to be UTC if no time zone information is present.
+            Defaults to None. If the start time is unspecified,
+            the API interprets the start time to be the same as the end time.
+        """
+        timeseries = self.time_series(
+            metric, resource, value, end_time, start_time)
+        self.write_time_series([timeseries])

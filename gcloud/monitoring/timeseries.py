@@ -24,6 +24,7 @@ Features intentionally omitted from this first version of the client library:
 
 import collections
 
+from gcloud._helpers import _datetime_to_rfc3339
 from gcloud.monitoring.metric import Metric
 from gcloud.monitoring.resource import Resource
 
@@ -89,6 +90,23 @@ class TimeSeries(collections.namedtuple(
         points = list(points) if points else []
         return self._replace(points=points)
 
+    def _to_dict(self):
+        """Build a dictionary ready to be serialized to the JSON wire format.
+
+        Since this method is used when writing to the API, it excludes
+        output-only fields.
+
+        :rtype: dict
+        :returns: The dictionary representation of the time series object.
+        """
+        info = {
+            'metric': self.metric._to_dict(),
+            'resource': self.resource._to_dict(),
+            'points': [point._to_dict() for point in self.points]
+        }
+
+        return info
+
     @classmethod
     def _from_dict(cls, info):
         """Construct a time series from the parsed JSON representation.
@@ -123,6 +141,27 @@ class TimeSeries(collections.namedtuple(
         )
 
 
+def _get_typed_value_from_value(value):
+    """Infers the typed value string for a point from the Python type.
+
+    See: https://cloud.google.com/monitoring/api/ref_v3/rest/v3/TypedValue
+
+   :type value: bool, int, float, str, or dict
+   :param value: value to infer the typed value of.
+
+   :rtype: str
+   :returns: The API string that signifies the appropriate value type.
+    """
+    typed_value_map = {
+        bool: "boolValue",
+        int: "int64Value",
+        float: "doubleValue",
+        str: "stringValue",
+        dict: "distributionValue"
+    }
+    return typed_value_map[type(value)]
+
+
 class Point(collections.namedtuple('Point', 'end_time start_time value')):
     """A single point in a time series.
 
@@ -155,3 +194,27 @@ class Point(collections.namedtuple('Point', 'end_time start_time value')):
             value = int(value)  # Convert from string.
 
         return cls(end_time, start_time, value)
+
+    def _to_dict(self):
+        """Build a dictionary ready to be serialized to the JSON wire format.
+
+        This method serializes a point in JSON format to be written
+        to the API.
+
+        :rtype: dict
+        :returns: The dictionary representation of the point object.
+        """
+        info = {
+            'interval': {
+                'endTime': _datetime_to_rfc3339(self.end_time)
+            },
+            'value': {
+                _get_typed_value_from_value(self.value): str(self.value)
+            }
+        }
+
+        if self.start_time is not None:
+            start_time_str = _datetime_to_rfc3339(self.start_time)
+            info['interval']['startTime'] = start_time_str
+
+        return info

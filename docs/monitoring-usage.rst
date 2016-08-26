@@ -30,7 +30,7 @@ of the API:
 - Querying of time series.
 - Querying of metric descriptors and monitored resource descriptors.
 - Creation and deletion of metric descriptors for custom metrics.
-- (Writing of custom metric data will be coming soon.)
+- Writing of custom metric data.
 
 .. _Stackdriver Monitoring API: https://cloud.google.com/monitoring/api/v3/
 

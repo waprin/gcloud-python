@@ -16,14 +16,16 @@ import unittest
 
 from gcloud import _helpers
 from gcloud.environment_vars import TESTS_PROJECT
+from gcloud.exceptions import BadRequest
 from gcloud.exceptions import NotFound
 from gcloud.exceptions import ServiceUnavailable
 from gcloud import monitoring
 
 from retry import RetryErrors
+from retry import RetryResult
 from system_test_utils import unique_resource_id
 
-retry_404 = RetryErrors(NotFound)
+retry_404 = RetryErrors(NotFound, max_tries=5)
 retry_503 = RetryErrors(ServiceUnavailable)
 
 
@@ -177,6 +179,48 @@ class TestMonitoring(unittest.TestCase):
         )
 
         descriptor.create()
+        retry_404(descriptor.delete)()
+
+        with self.assertRaises(NotFound):
+            descriptor.delete()
+
+    def test_write_point(self):
+        METRIC_TYPE = ('custom.googleapis.com/tmp/system_test_example' +
+                       unique_resource_id())
+        METRIC_KIND = monitoring.MetricKind.GAUGE
+        VALUE_TYPE = monitoring.ValueType.DOUBLE
+        DESCRIPTION = 'System test example -- DELETE ME!'
+        VALUE = 3.14
+
+        client = monitoring.Client()
+        descriptor = client.metric_descriptor(
+            METRIC_TYPE,
+            metric_kind=METRIC_KIND,
+            value_type=VALUE_TYPE,
+            description=DESCRIPTION,
+        )
+
+        descriptor.create()
+        retry_404(descriptor._fetch)(client, METRIC_TYPE)
+
+        metric = client.metric(METRIC_TYPE, {})
+        resource = client.resource('global', {})
+
+        # Since metric descriptor is new, time series create might
+        # temporarily fail.
+        retry_write = RetryErrors(BadRequest)(client.write_point)
+        retry_write(metric, resource, VALUE)
+
+        def query_timeseries_with_retries():
+            def _has_timeseries(result):
+                return len(list(result)) > 0
+            return RetryResult(_has_timeseries, max_tries=7)(
+                client.query)
+
+        query = query_timeseries_with_retries()(METRIC_TYPE, minutes=5)
+        timeseries = list(query)[0]
+        self.assertEqual(timeseries.points[0].value, VALUE)
+
         retry_404(descriptor.delete)()
 
         with self.assertRaises(NotFound):
