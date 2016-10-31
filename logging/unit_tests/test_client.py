@@ -549,6 +549,73 @@ class TestClient(unittest.TestCase):
             },
         })
 
+    def test_get_default_handler_app_engine(self):
+        import os
+        from google.cloud._testing import _Monkey
+        from google.cloud.logging.client import _APPENGINE_FLEXIBLE_ENV_VM
+        from google.cloud.logging.handlers import app_engine as _MUT
+        from google.cloud.logging.handlers import AppEngineHandler
+
+        client = self._make_one(project=self.PROJECT,
+                                credentials=_Credentials(),
+                                use_gax=False)
+
+        with _Monkey(_MUT, _LOG_PATH_TEMPLATE='{pid}'):
+            with _Monkey(os, environ={_APPENGINE_FLEXIBLE_ENV_VM: 'True'}):
+                handler = client.get_default_handler()
+
+        self.assertIsInstance(handler, AppEngineHandler)
+
+    def test_get_default_handler_container_engine(self):
+        import os
+        from google.cloud._testing import _Monkey
+        from google.cloud.logging.client import _CONTAINER_ENGINE_ENV
+        from google.cloud.logging.handlers import ContainerEngineHandler
+
+        client = self._make_one(project=self.PROJECT,
+                                credentials=_Credentials(),
+                                use_gax=False)
+
+        with _Monkey(os, environ={_CONTAINER_ENGINE_ENV: 'True'}):
+            handler = client.get_default_handler()
+
+        self.assertIsInstance(handler, ContainerEngineHandler)
+
+    def test_get_default_handler_general(self):
+        from google.cloud.logging.handlers import CloudLoggingHandler
+
+        client = self._make_one(project=self.PROJECT,
+                                credentials=_Credentials(),
+                                use_gax=False)
+        handler = client.get_default_handler()
+        self.assertIsInstance(handler, CloudLoggingHandler)
+
+    def test_setup_logging(self):
+        from google.cloud._testing import _Monkey
+        import google.cloud.logging.client as MUT
+
+        client = self._make_one(project=self.PROJECT,
+                                credentials=_Credentials(),
+                                use_gax=False)
+
+        client.get_default_handler()
+
+        setup_logging_mock = _SetupLogging()
+        with _Monkey(MUT, setup_logging=setup_logging_mock):
+            client.setup_logging()
+
+        self.assertTrue(setup_logging_mock.called)
+
+
+class _SetupLogging(object):
+    def __init__(self):
+        self.called = False
+
+    def __call__(self, handler, log_level,
+                 excluded_loggers=None):
+        self._exclude = excluded_loggers
+        self.called = True
+
 
 class _Credentials(object):
 
@@ -561,6 +628,9 @@ class _Credentials(object):
     def create_scoped(self, scope):
         self._scopes = scope
         return self
+
+    def authorize(self, http):
+        pass
 
 
 class _Connection(object):
