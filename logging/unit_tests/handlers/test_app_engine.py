@@ -44,7 +44,7 @@ class TestAppEngineHandlerHandler(unittest.TestCase):
                 'nanos': int(.03 * 1e9)
             },
             'thread': record.thread,
-            'severity': record.levelname
+            'severity': record.levelname,
         }
         payload = handler.format(record)
 
