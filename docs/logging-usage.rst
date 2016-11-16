@@ -267,6 +267,7 @@ Delete a sink:
     :start-after: [START sink_delete]
     :end-before: [END sink_delete]
     :dedent: 4
+
 Integration with Python logging module
 --------------------------------------
 
@@ -275,17 +276,10 @@ Stackdriver Logging. There are different handler options to accomplish this.
 To automatically pick the default for your current environment, use
 :meth:`~google.cloud.logging.client.Client.get_default_handler`.
 
-.. code-block:: python
-
-    >>> import logging
-    >>> import google.cloud.logging # Don't conflict with standard logging
-    >>> from google.cloud.logging.handlers import CloudLoggingHandler
-    >>> client = google.cloud.logging.Client()
-    >>> handler = client.get_default_handler()
-    >>> cloud_logger = logging.getLogger('cloudLogger')
-    >>> cloud_logger.setLevel(logging.INFO)
-    >>> cloud_logger.addHandler(handler)
-    >>> cloud_logger.error('bad news')
+.. literalinclude:: logging_snippets.py
+    :start-after: [START create_default_handler]
+    :end-before: [END create_default_handler]
+    :dedent: 4
 
 It is also possible to attach the handler to the root Python logger, so that
 for example a plain ``logging.warn`` call would be sent to Stackdriver Logging,
@@ -293,12 +287,10 @@ as well as any other loggers created. A helper method
 :meth:`~google.cloud.logging.client.Client.setup_logging` is provided
 to configure this automatically.
 
-.. code-block:: python
-
-    >>> import logging
-    >>> import google.cloud.logging # Don't conflict with standard logging
-    >>> client = google.cloud.logging.Client()
-    >>> client.setup_logging(log_level=logging.INFO)
+.. literalinclude:: logging_snippets.py
+    :start-after: [START setup_logging]
+    :end-before: [END setup_logging]
+    :dedent: 4
 
 .. note::
 
@@ -307,10 +299,10 @@ to configure this automatically.
 
 You can also exclude certain loggers:
 
-.. code-block:: python
-
-   >>> client.setup_logging(log_level=logging.INFO,
-                            excluded_loggers=('werkzeug',))
+.. literalinclude:: logging_snippets.py
+    :start-after: [START setup_logging_excludes]
+    :end-before: [END setup_logging_excludes]
+    :dedent: 4
 
 Cloud Logging Handler
 =====================
@@ -321,17 +313,10 @@ directly create a
 :class:`~google.cloud.logging.handlers.handlers.CloudLoggingHandler` instance
 which will write directly to the API.
 
-.. code-block:: python
-
-    >>> import logging
-    >>> import google.cloud.logging
-    >>> from google.cloud.logging.handlers import CloudLoggingHandler
-    >>> client = google.cloud.logging.Client()
-    >>> handler = CloudLoggingHandler(client)
-    >>> cloud_logger = logging.getLogger('cloudLogger')
-    >>> cloud_logger.setLevel(logging.INFO)
-    >>> cloud_logger.addHandler(handler)
-    >>> cloud_logger.error('bad news')
+.. literalinclude:: logging_snippets.py
+    :start-after: [START create_cloud_handler]
+    :end-before: [END create_cloud_handler]
+    :dedent: 4
 
 .. note::
 
@@ -344,9 +329,10 @@ All logs will go to a single custom log, which defaults to "python". The name
 of the Python logger will be included in the structured log entry under the
 "python_logger" field. You can change it by providing a name to the handler:
 
-.. code-block:: python
-
-    >>> handler = CloudLoggingHandler(client, name='mycustomlog')
+.. literalinclude:: logging_snippets.py
+    :start-after: [START create_named_handler]
+    :end-before: [END create_named_handler]
+    :dedent: 4
 
 fluentd logging handlers
 ========================
