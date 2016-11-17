@@ -15,6 +15,9 @@
 """Google Stackdriver Logging API wrapper."""
 
 
+from google.cloud.logging.client import Client
+
+
 ASCENDING = 'timestamp asc'
 """Query string to order by ascending timestamps."""
 DESCENDING = 'timestamp desc'
