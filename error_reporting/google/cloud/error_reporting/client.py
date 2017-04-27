@@ -60,7 +60,6 @@ class HTTPContext(object):
                       the IP address, depending on the data that has been
                       provided in the error report.
     """
-
     def __init__(self, method=None, url=None,
                  user_agent=None, referrer=None,
                  response_status_code=None, remote_ip=None):
@@ -122,6 +121,9 @@ class Client(ClientWithProject):
     :raises: :class:`ValueError` if the project is neither passed in nor
              set in the environment.
     """
+
+    SCOPE = ('https://www.googleapis.com/auth/cloud-platform',)
+    """The scopes required for authenticating as an Error Reporting consumer."""
 
     def __init__(self, project=None,
                  credentials=None,
